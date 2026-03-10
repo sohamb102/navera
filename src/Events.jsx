@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, LogOut, MapPin, Users, Ticket, Award, Mail, Phone, Calendar, Share2, Bookmark, Clock, Image as ImageIcon, Filter, ChevronDown, CheckCircle, Search, PlusCircle } from 'lucide-react';
+import { ChevronLeft, LogOut, LogIn, MapPin, Users, Ticket, Award, Mail, Phone, Calendar, Share2, Bookmark, Clock, Image as ImageIcon, Filter, ChevronDown, CheckCircle, Search, PlusCircle, Home as HomeIcon, Star, Trophy } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
 const DUMMY_EVENTS = [
@@ -480,20 +480,43 @@ export default function Events({ setMode, handleLogout, user }) {
             <div className="home-container fade-enter-active">
                 {/* Navigation Bar */}
                 <nav className="navbar">
-                    <div className="nav-logo" onClick={() => setMode('home')}>
-                        <h1>Navera Fest</h1>
+                    <div className="nav-logo" onClick={() => setMode('home')} style={{ cursor: 'pointer' }}>
+                        <img src="/images/navera-logo-transparent.png" alt="Navera Fest Logo" style={{ height: '48px', borderRadius: '8px' }} />
                     </div>
                     <div className="nav-links">
-                        <button className="nav-item" onClick={() => setMode('home')}>Home</button>
-                        <button className="nav-item" style={{ color: '#2BD97F', textShadow: '0 0 12px rgba(43, 217, 127, 0.5)' }}>Events</button>
-                        <button className="nav-item">Sponsorship</button>
-                        <button
-                            className="nav-item"
-                            onClick={handleLogout}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}
-                        >
-                            <LogOut size={16} /> Logout
+                        <button className="nav-item" onClick={() => setMode('home')}>
+                            <HomeIcon size={24} />
+                            Home
                         </button>
+                        <button className="nav-item" style={{ color: '#2BD97F', textShadow: '0 0 12px rgba(43, 217, 127, 0.5)' }}>
+                            <Calendar size={24} />
+                            Events
+                        </button>
+                        <button className="nav-item">
+                            <Star size={24} />
+                            Sponsors
+                        </button>
+                        <button className="nav-item" onClick={() => setMode('results')}>
+                            <Trophy size={24} />
+                            Results
+                        </button>
+                        {user ? (
+                            <button
+                                className="nav-item"
+                                onClick={handleLogout}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}
+                            >
+                                <LogOut size={24} /> Logout
+                            </button>
+                        ) : (
+                            <button
+                                className="nav-item"
+                                onClick={() => setMode('login')}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-light)' }}
+                            >
+                                <LogIn size={24} /> Login
+                            </button>
+                        )}
                     </div>
                 </nav>
 
@@ -587,20 +610,43 @@ export default function Events({ setMode, handleLogout, user }) {
         <div className="home-container fade-enter-active">
             {/* Navigation Bar */}
             <nav className="navbar">
-                <div className="nav-logo" onClick={() => setMode('home')}>
-                    <h1>Navera Fest</h1>
+                <div className="nav-logo" onClick={() => setMode('home')} style={{ cursor: 'pointer' }}>
+                    <img src="/images/navera-logo-transparent.png" alt="Navera Fest Logo" style={{ height: '48px', borderRadius: '8px' }} />
                 </div>
                 <div className="nav-links">
-                    <button className="nav-item" onClick={() => setMode('home')}>Home</button>
-                    <button className="nav-item" onClick={() => setSelectedEvent(null)} style={{ color: '#2BD97F', textShadow: '0 0 12px rgba(43, 217, 127, 0.5)' }}>Events</button>
-                    <button className="nav-item">Sponsorship</button>
-                    <button
-                        className="nav-item"
-                        onClick={handleLogout}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}
-                    >
-                        <LogOut size={16} /> Logout
+                    <button className="nav-item" onClick={() => setMode('home')}>
+                        <HomeIcon size={24} />
+                        Home
                     </button>
+                    <button className="nav-item" onClick={() => setSelectedEvent(null)} style={{ color: '#2BD97F', textShadow: '0 0 12px rgba(43, 217, 127, 0.5)' }}>
+                        <Calendar size={24} />
+                        Events
+                    </button>
+                    <button className="nav-item">
+                        <Star size={24} />
+                        Sponsors
+                    </button>
+                    <button className="nav-item" onClick={() => setMode('results')}>
+                        <Trophy size={24} />
+                        Results
+                    </button>
+                    {user ? (
+                        <button
+                            className="nav-item"
+                            onClick={handleLogout}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff6b6b' }}
+                        >
+                            <LogOut size={24} /> Logout
+                        </button>
+                    ) : (
+                        <button
+                            className="nav-item"
+                            onClick={() => setMode('login')}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-light)' }}
+                        >
+                            <LogIn size={24} /> Login
+                        </button>
+                    )}
                 </div>
             </nav>
 

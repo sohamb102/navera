@@ -3,9 +3,10 @@ import { GraduationCap, Briefcase, ChevronRight, CheckCircle, AlertCircle, LogIn
 import { supabase } from './supabaseClient'
 import Home from './Home'
 import Events from './Events'
+import Results from './Results';
 
 export default function App() {
-    const [mode, setMode] = useState('login'); // 'home', 'login', 'login_otp', 'signup', 'dashboard'
+    const [mode, setMode] = useState('home'); // 'home', 'login', 'login_otp', 'signup', 'dashboard'
     const [step, setStep] = useState(1); // Used for signup wizard
     const [userType, setUserType] = useState('');
     const [formData, setFormData] = useState({});

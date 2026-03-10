@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;700;800;900&display=swap');
 
 :root {
   --bg-primary: #021B13;
@@ -341,21 +341,31 @@ body {
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  background-image: linear-gradient(rgba(2, 27, 19, 0.7), rgba(2, 27, 19, 0.7)), url('/images/cyberpunk-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding-left: 100px; /* Offset for narrow vertical navbar */
 }
 
 .navbar {
-  width: 100%;
-  padding: 1.5rem 4rem;
+  width: 100px; /* Narrow fixed width */
+  height: 100vh; /* Full height */
+  padding: 2rem 0;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  background: rgba(2, 27, 19, 0.4);
-  backdrop-filter: blur(12px);
+  background: rgba(15, 8, 30, 0.4);
+  backdrop-filter: blur(16px);
   position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
-  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .nav-logo h1 {
@@ -371,23 +381,37 @@ body {
 
 .nav-links {
   display: flex;
-  gap: 2.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  margin-top: 3rem;
 }
 
 .nav-item {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .nav-item:hover {
   color: #fff;
   text-shadow: 0 0 12px var(--accent-glow);
-  transform: translateY(-1px);
+  transform: scale(1.1);
 }
 
 .hero-section {
@@ -398,25 +422,45 @@ body {
   align-items: center;
   text-align: center;
   padding: 10rem 2rem 4rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   z-index: 10;
   position: relative;
 }
 
-.hero-section h1 {
-  font-size: 4rem;
+.hero-title {
+  font-size: 6rem;
   font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #fff 30%, var(--accent-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  letter-spacing: 6px;
+  font-family: 'Montserrat', sans-serif;
 }
 
-.hero-section p {
+.text-glow-yellow {
+  color: #FFF000;
+  text-shadow: 0 0 20px rgba(255, 240, 0, 0.4), 0px 4px 0px #b3a800;
+}
+
+.text-glow-pink {
+  color: #FF0055;
+  text-shadow: 0 0 20px rgba(255, 0, 85, 0.4), 0px 4px 0px #b3003c;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: #fff;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.hero-description {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: #e2e8f0;
   margin-bottom: 3rem;
   line-height: 1.6;
   max-width: 600px;
@@ -456,16 +500,35 @@ body {
 }
 
 @media (max-width: 768px) {
+  .home-container {
+    padding-left: 0; /* Remove offset on mobile */
+  }
+
   .navbar {
+    width: 100%;
+    height: auto;
     padding: 1rem 1.5rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .nav-logo img {
+    height: 36px !important; /* Smaller logo on mobile */
   }
 
   .nav-links {
     display: none;
   }
 
-  .hero-section h1 {
-    font-size: 2.75rem;
+  .hero-title {
+    font-size: 4rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
   }
 
   .hero-section {
