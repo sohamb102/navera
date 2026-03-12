@@ -1,281 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, LogOut, LogIn, MapPin, Users, Ticket, Award, Mail, Phone, Calendar, Share2, Bookmark, Clock, Image as ImageIcon, Filter, ChevronDown, CheckCircle, Search, PlusCircle, Home as HomeIcon, Star, Trophy } from 'lucide-react';
+import { ChevronLeft, LogOut, LogIn, MapPin, Users, Ticket, Award, Mail, Phone, Calendar, Share2, Bookmark, Clock, Image as ImageIcon, Filter, ChevronDown, CheckCircle, Search, PlusCircle, Home as HomeIcon, Star, Trophy, LayoutDashboard } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const DUMMY_EVENTS = [
-    {
-        id: 1,
-        name: 'ProductX Challenge',
-        shortDesc: 'Navigate a simulated product lifecycle crisis and make critical executive decisions.',
-        organizer: 'Product Space',
-        participationType: 'Team',
-        eventMode: 'Online',
-        category: ['Product Management', 'Strategy'],
-        eligibility: 'MBA and senior undergraduate engineering students preferred.',
-        teamSize: '2–3 Members',
-        rules: [
-            'Simulation runs for 3 hours.',
-            'Decisions must balance revenue, user satisfaction, and technical debt.',
-            'Submit a post-simulation strategic review.'
-        ],
-        prize: {
-            winner: '₹35,000',
-            runnerUp: '₹15,000'
-        },
-        poc: 'Navin Kumar',
-        contact: '9123498765',
-        date: 'Oct 17, 2026',
-        location: 'Virtual + Room 204',
-        postedDate: 'Mar 9, 2026',
-        daysLeft: 5,
-        logoUrl: ''
-    },
-    {
-        id: 2,
-        name: 'AI Innovation Hackathon',
-        shortDesc: 'Build and showcase cutting-edge artificial intelligence models and applications.',
-        organizer: 'Tech Innovators',
-        participationType: 'Team',
-        eventMode: 'Hybrid',
-        category: ['AI', 'Hackathon', 'Technology'],
-        eligibility: 'Open to all students with a basic understanding of AI/ML.',
-        teamSize: '1–4 Members',
-        rules: [
-            'Models must be trained on publicly available datasets or generated synthetic data.',
-            'Submit code repository and a short presentation video.',
-            'Evaluation based on accuracy, innovation, and practical applicability.'
-        ],
-        prize: {
-            winner: '₹40,000',
-            runnerUp: '₹20,000'
-        },
-        poc: 'Sneha Patel',
-        contact: '9123456780',
-        date: 'Oct 17, 2026',
-        location: 'Bangalore / Online',
-        postedDate: 'Mar 8, 2026',
-        daysLeft: 6,
-        logoUrl: ''
-    },
-    {
-        id: 3,
-        name: 'Startup Pitch Arena',
-        shortDesc: 'Pitch your breakthrough startup idea to a panel of expert investors.',
-        organizer: 'E-Cell Navera',
-        participationType: 'Team',
-        eventMode: 'Offline',
-        category: ['Business', 'Entrepreneurship'],
-        eligibility: 'Open to all university students.',
-        teamSize: '1–4 Members',
-        rules: [
-            '5-minute pitch followed by a 3-minute Q&A.',
-            'Ideas must be original and financially viable.',
-            'Prototypes are highly encouraged but not mandatory.'
-        ],
-        prize: {
-            winner: '₹1,00,000 Seed Fund',
-            runnerUp: '₹50,000 Seed Fund'
-        },
-        poc: 'Vikram Singh',
-        contact: '9988776655',
-        date: 'Oct 19, 2026',
-        location: 'Grand Boardroom',
-        postedDate: 'Mar 7, 2026',
-        daysLeft: 7,
-        logoUrl: ''
-    },
-    {
-        id: 4,
-        name: 'Data Analytics Case Study',
-        shortDesc: 'Analyze complex real-world business datasets and present actionable insights.',
-        organizer: 'Data Science Society',
-        participationType: 'Team',
-        eventMode: 'Online',
-        category: ['Data Analytics', 'Business'],
-        eligibility: 'Open to all students. Background in statistics recommended.',
-        teamSize: '2 Members',
-        rules: [
-            'Dataset will be provided 48 hours prior to submission.',
-            'Present findings in a maximum 10-slide deck.',
-            'Focus on data visualization and business impact.'
-        ],
-        prize: {
-            winner: '₹30,000',
-            runnerUp: '₹15,000'
-        },
-        poc: 'Amit Sharma',
-        contact: '9876501234',
-        date: 'Oct 18, 2026',
-        location: 'Online',
-        postedDate: 'Mar 10, 2026',
-        daysLeft: 4,
-        logoUrl: ''
-    },
-    {
-        id: 5,
-        name: 'UI/UX Design Sprint',
-        shortDesc: 'Redesign a provided mobile application interface for better accessibility and flow.',
-        organizer: 'Design Club Navera',
-        participationType: 'Individual',
-        eventMode: 'Hybrid',
-        category: ['Design', 'UI/UX'],
-        eligibility: 'Open to all students passionate about design.',
-        teamSize: '1 Member',
-        rules: [
-            'Problem statement revealed on the spot.',
-            'Tools allowed: Figma, Adobe XD, Sketch.',
-            'Must submit high-fidelity mockups and an interactive prototype.'
-        ],
-        prize: {
-            winner: '₹25,000 + Figma Pro License',
-            runnerUp: '₹10,000'
-        },
-        poc: 'Priya Desai',
-        contact: '9876549876',
-        date: 'Oct 16, 2026',
-        location: 'Design Studio / Online',
-        postedDate: 'Mar 9, 2026',
-        daysLeft: 5,
-        logoUrl: ''
-    },
-    {
-        id: 6,
-        name: 'Marketing Strategy War',
-        shortDesc: 'Develop a comprehensive go-to-market strategy for a bizarre fictional product.',
-        organizer: 'Marketing Mavens',
-        participationType: 'Team',
-        eventMode: 'Offline',
-        category: ['Marketing', 'Strategy'],
-        eligibility: 'Open to all students.',
-        teamSize: '3–4 Members',
-        rules: [
-            'Product unveiled exactly 24 hours before presentation.',
-            'Strategy must include budget allocation, target demographics, and campaign creatives.',
-            'Judged on creativity, feasibility, and ROI projection.'
-        ],
-        prize: {
-            winner: '₹40,000',
-            runnerUp: '₹20,000'
-        },
-        poc: 'Neha Kapoor',
-        contact: '9876511223',
-        date: 'Oct 18, 2026',
-        location: 'Seminar Hall A',
-        postedDate: 'Mar 5, 2026',
-        daysLeft: 9,
-        logoUrl: ''
-    },
-    {
-        id: 7,
-        name: 'Cybersecurity Challenge',
-        shortDesc: 'Find security vulnerabilities and capture flags in our custom hardened environment.',
-        organizer: 'Navera Sec',
-        participationType: 'Team',
-        eventMode: 'Online',
-        category: ['Technology', 'Cybersecurity'],
-        eligibility: 'Open to all students. Basic networking and Linux skills required.',
-        teamSize: '1–4 Members',
-        rules: [
-            'Event lasts for 12 hours.',
-            'Flags range from cryptography to web exploitation.',
-            'Participants must not attack infrastructure outside the CTF scope.'
-        ],
-        prize: {
-            winner: '₹60,000',
-            runnerUp: '₹30,000'
-        },
-        poc: 'Arjun Reddy',
-        contact: '9123412345',
-        date: 'Oct 19, 2026',
-        location: 'Online',
-        postedDate: 'Mar 6, 2026',
-        daysLeft: 8,
-        logoUrl: ''
-    },
-    {
-        id: 8,
-        name: 'Coding Marathon',
-        shortDesc: 'A rapid-fire competitive programming contest testing algorithmic problem-solving.',
-        organizer: 'CodeCell',
-        participationType: 'Individual',
-        eventMode: 'Offline',
-        category: ['Technology', 'Coding'],
-        eligibility: 'Open to all students.',
-        teamSize: '1 Member',
-        rules: [
-            '3-hour time limit to solve 6 algorithmic questions.',
-            'Supported languages: C++, Java, Python, JavaScript.',
-            'Plagiarism will result in immediate disqualification.'
-        ],
-        prize: {
-            winner: '₹20,000',
-            runnerUp: '₹10,000'
-        },
-        poc: 'Karan Joshi',
-        contact: '9988112233',
-        date: 'Oct 15, 2026',
-        location: 'Computer Lab 1 & 2',
-        postedDate: 'Mar 11, 2026',
-        daysLeft: 3,
-        logoUrl: ''
-    },
-    {
-        id: 9,
-        name: 'Business Quiz Championship',
-        shortDesc: 'Test your knowledge on global markets, startup history, and tech giants.',
-        organizer: 'Navera Quizzing Society',
-        participationType: 'Team',
-        eventMode: 'Offline',
-        category: ['Business', 'General'],
-        eligibility: 'Open to all students.',
-        teamSize: '2 Members',
-        rules: [
-            'Preliminary written round followed by a stage finale for the top 6 teams.',
-            'Topics cover recent business news, legacy corporates, and pop culture economics.',
-            'No electronic devices permitted during the quiz.'
-        ],
-        prize: {
-            winner: '₹15,000',
-            runnerUp: '₹7,500'
-        },
-        poc: 'Rohan Sen',
-        contact: '9988223344',
-        date: 'Oct 20, 2026',
-        location: 'Main Auditorium',
-        postedDate: 'Mar 12, 2026',
-        daysLeft: 2,
-        logoUrl: ''
-    },
-    {
-        id: 10,
-        name: 'AI Product Buildathon',
-        shortDesc: 'Conceptualize, design, and prototype an AI-first consumer product in 48 hours.',
-        organizer: 'Product Space & Tech Innovators',
-        participationType: 'Team',
-        eventMode: 'Hybrid',
-        category: ['AI', 'Product Management'],
-        eligibility: 'Open to all undergraduate and postgraduate students.',
-        teamSize: '2–4 Members',
-        rules: [
-            'Teams must develop a working prototype.',
-            'Use of open-source models is allowed.',
-            'Final submission must include demo, business model, and documentation.'
-        ],
-        prize: {
-            winner: '₹75,000',
-            runnerUp: '₹35,000'
-        },
-        poc: 'Rahul Mehta',
-        contact: '9876543210',
-        date: 'Oct 15-16, 2026',
-        location: 'Main Auditorium / Online',
-        postedDate: 'Mar 4, 2026',
-        daysLeft: 10,
-        logoUrl: ''
-    }
-];
-
-export default function Events({ setMode, handleLogout, user }) {
+export default function Events({ setMode, handleLogout, user, isAdmin }) {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [eventsList, setEventsList] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
@@ -304,8 +31,31 @@ export default function Events({ setMode, handleLogout, user }) {
             try {
                 const { data, error } = await supabase.from('events').select('*');
                 if (error) throw error;
-                // If the DB is empty, use DUMMY_EVENTS as a fallback just for visualization
-                setEventsList(data && data.length > 0 ? data : DUMMY_EVENTS);
+
+                let normalized = [];
+                if (data && data.length > 0) {
+                    normalized = data.map(evt => {
+                        const categoryValue = evt.category;
+                        let categoryArray;
+                        if (Array.isArray(categoryValue)) {
+                            categoryArray = categoryValue;
+                        } else if (typeof categoryValue === 'string') {
+                            categoryArray = categoryValue
+                                .split(',')
+                                .map(c => c.trim())
+                                .filter(Boolean);
+                        } else {
+                            categoryArray = [];
+                        }
+
+                        return {
+                            ...evt,
+                            category: categoryArray
+                        };
+                    });
+                }
+
+                setEventsList(normalized);
 
                 if (user) {
                     const { data: soloRegs } = await supabase.from('event_registrations').select('event_id').eq('user_id', user.id);
@@ -320,7 +70,7 @@ export default function Events({ setMode, handleLogout, user }) {
                 }
             } catch (err) {
                 console.error("Error fetching events:", err);
-                setEventsList(DUMMY_EVENTS);
+                setEventsList([]);
             }
             setLoadingEvents(false);
         };
@@ -492,7 +242,7 @@ export default function Events({ setMode, handleLogout, user }) {
                             <Calendar size={24} />
                             Events
                         </button>
-                        <button className="nav-item">
+                        <button className="nav-item" onClick={() => setMode('sponsors')}>
                             <Star size={24} />
                             Sponsors
                         </button>
@@ -500,6 +250,12 @@ export default function Events({ setMode, handleLogout, user }) {
                             <Trophy size={24} />
                             Results
                         </button>
+                        {isAdmin && (
+                            <button className="nav-item" onClick={() => setMode('admin')} style={{ color: '#FFF000' }}>
+                                <LayoutDashboard size={24} />
+                                Admin
+                            </button>
+                        )}
                         {user ? (
                             <button
                                 className="nav-item"
@@ -539,6 +295,10 @@ export default function Events({ setMode, handleLogout, user }) {
                     <div className="events-list-container">
                         {loadingEvents ? (
                             <div style={{ textAlign: 'center', padding: '4rem', color: '#fff' }}>Loading exciting events...</div>
+                        ) : eventsList.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '4rem', color: '#fff' }}>
+                                No events yet. Please add events from the Admin panel.
+                            </div>
                         ) : (
                             eventsList.map(event => (
                                 <div
@@ -622,7 +382,7 @@ export default function Events({ setMode, handleLogout, user }) {
                         <Calendar size={24} />
                         Events
                     </button>
-                    <button className="nav-item">
+                    <button className="nav-item" onClick={() => setMode('sponsors')}>
                         <Star size={24} />
                         Sponsors
                     </button>
@@ -630,6 +390,12 @@ export default function Events({ setMode, handleLogout, user }) {
                         <Trophy size={24} />
                         Results
                     </button>
+                    {isAdmin && (
+                        <button className="nav-item" onClick={() => setMode('admin')} style={{ color: '#FFF000' }}>
+                            <LayoutDashboard size={24} />
+                            Admin
+                        </button>
+                    )}
                     {user ? (
                         <button
                             className="nav-item"
@@ -814,11 +580,28 @@ export default function Events({ setMode, handleLogout, user }) {
                             <h3>Important Dates & Deadlines</h3>
                             <div className="date-deadline-box">
                                 <div className="dd-date">
-                                    <Calendar size={20} color="var(--accent-light)" /> {selectedEvent.postedDate ? `${selectedEvent.postedDate.split(' ')[0]} ${parseInt(selectedEvent.postedDate.split(' ')[1]) + 5}` : 'Upcoming'}
+                                    <Calendar size={20} color="var(--accent-light)" />{
+                                        (() => {
+                                            if (selectedEvent.registration_deadline) {
+                                                const d = new Date(selectedEvent.registration_deadline);
+                                                if (!isNaN(d.getTime())) {
+                                                    return d.toLocaleDateString('en-IN', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric'
+                                                    });
+                                                }
+                                            }
+                                            if (selectedEvent.postedDate) {
+                                                return selectedEvent.postedDate;
+                                            }
+                                            return 'Upcoming';
+                                        })()
+                                    }
                                 </div>
                                 <div className="dd-info">
                                     <strong>Registration Deadline</strong>
-                                    <span>11:59 PM IST</span>
+                                    <span>{selectedEvent.registration_deadline_time || '11:59 PM IST'}</span>
                                 </div>
                             </div>
                         </div>

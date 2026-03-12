@@ -1,7 +1,6 @@
-import React from 'react';
-import { ChevronRight, LogOut, LogIn, Home as HomeIcon, Calendar, Star, Trophy } from 'lucide-react';
+import { ChevronRight, LogOut, LogIn, Home as HomeIcon, Calendar, Star, Trophy, LayoutDashboard } from 'lucide-react';
 
-export default function Home({ setMode, handleLogout, user }) {
+export default function Home({ setMode, handleLogout, user, isAdmin }) {
     return (
         <div className="home-container fade-enter-active">
             {/* Top Navigation Bar */}
@@ -10,7 +9,7 @@ export default function Home({ setMode, handleLogout, user }) {
                     <img src="/images/navera-logo-transparent.png" alt="Navera Logo" style={{ height: '48px', borderRadius: '8px' }} />
                 </div>
                 <div className="nav-links">
-                    <button className="nav-item">
+                    <button className="nav-item" onClick={() => setMode('home')} style={{ color: '#2BD97F', textShadow: '0 0 12px rgba(43, 217, 127, 0.5)' }}>
                         <HomeIcon size={24} />
                         Home
                     </button>
@@ -18,7 +17,7 @@ export default function Home({ setMode, handleLogout, user }) {
                         <Calendar size={24} />
                         Events
                     </button>
-                    <button className="nav-item">
+                    <button className="nav-item" onClick={() => setMode('sponsors')}>
                         <Star size={24} />
                         Sponsors
                     </button>
@@ -26,6 +25,12 @@ export default function Home({ setMode, handleLogout, user }) {
                         <Trophy size={24} />
                         Results
                     </button>
+                    {isAdmin && (
+                        <button className="nav-item" onClick={() => setMode('admin')} style={{ color: '#FFF000' }}>
+                            <LayoutDashboard size={24} />
+                            Admin
+                        </button>
+                    )}
                     {user ? (
                         <button
                             className="nav-item"
@@ -48,18 +53,12 @@ export default function Home({ setMode, handleLogout, user }) {
 
             {/* Hero Section */}
             <main className="hero-section">
-                <div className="hero-title fade-enter-active" style={{ transitionDelay: '100ms' }}>
-                    <span className="text-glow-yellow">THE BUILDERS'</span><br/>
-                    <span className="text-glow-pink">ERA.</span>
-                </div>
-                <h2 className="hero-subtitle fade-enter-active" style={{ transitionDelay: '150ms' }}>
-                    Navera '26
-                </h2>
+                <img src="/images/navera-logo-transparent.png" className="hero-logo fade-enter-active" alt="Navera Logo" style={{ transitionDelay: '50ms' }} />
                 <div className="fade-enter-active" style={{ transitionDelay: '300ms', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                    <button className="btn hero-btn" style={{ background: '#FF0055', boxShadow: '0 0 15px rgba(255,0,85,0.4)' }} onClick={() => setMode('events')}>
+                    <button className="btn hero-btn" style={{ background: '#D22B3D', boxShadow: '0 0 15px rgba(210,43,61,0.4)' }} onClick={() => setMode('events')}>
                         Explore Events <ChevronRight size={20} />
                     </button>
-                    <button className="btn btn-secondary hero-btn" style={{ marginTop: 0, borderColor: '#FFF000', color: '#FFF000' }} onClick={() => setMode('login')}>
+                    <button className="btn btn-secondary hero-btn" style={{ marginTop: 0, borderColor: '#D22B3D', color: '#D22B3D', boxShadow: '0 0 15px rgba(210,43,61,0.2)' }} onClick={() => setMode('login')}>
                         Register Now
                     </button>
                 </div>

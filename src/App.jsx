@@ -1,48 +1,76 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { GraduationCap, Briefcase, ChevronRight, CheckCircle, AlertCircle, LogIn, Mail } from 'lucide-react'
 import { supabase } from './supabaseClient'
 import Home from './Home'
 import Events from './Events'
 import Results from './Results';
+import Sponsors from './Sponsors';
+import Admin from './Admin';
 
 export default function App() {
-    const [mode, setMode] = useState('home'); // 'home', 'login', 'login_otp', 'signup', 'dashboard'
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [authMode, setAuthMode] = useState('login');
+    const [mode, _setMode] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('mode') || 'home';
+    });
+
+    const setMode = (m) => {
+        if (m === 'home') navigate('/');
+        else if (m === 'admin_login') navigate('/admin-login');
+        else if (['events', 'results', 'sponsors', 'admin', 'dashboard'].includes(m)) navigate(`/${m}`);
+        else {
+            // Auth-related modes (login, login_otp, signup) use dedicated /auth route
+            setAuthMode(m);
+            if (location.pathname !== '/auth') navigate('/auth');
+        }
+    };
     const [step, setStep] = useState(1); // Used for signup wizard
     const [userType, setUserType] = useState('');
     const [formData, setFormData] = useState({});
     const [globalError, setGlobalError] = useState('');
     const [isCheckingSession, setIsCheckingSession] = useState(true);
     const [user, setUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
 
     useEffect(() => {
-        // Check for returning OAuth redirects
+        // Handle URL-based routing (e.g., ?mode=admin)
+        const params = new URLSearchParams(window.location.search);
+        const urlMode = params.get('mode');
         let authListenerSubscription = null;
-
+        
         const checkUserSession = async () => {
             setIsCheckingSession(true);
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
-
-                if (error) {
-                    throw error;
-                }
+                if (error) throw error;
 
                 if (session?.user) {
                     setUser(session.user);
-                    setMode('home');
+                    // Only redirect to home if we are not specifically asking for admin mode
+                    if (urlMode !== 'admin') {
+                        setMode('home');
+                    } else {
+                        setMode('admin');
+                    }
                 } else {
-                    // Check URL for error from OAuth (e.g. user canceled)
+                    if (urlMode === 'admin') {
+                        setMode('admin');
+                    }
+                    // Handle OAuth errors...
                     const hashParams = new URLSearchParams(window.location.hash.substring(1));
                     if (hashParams.get('error')) {
                         setGlobalError("Google login failed. Please try again.");
-                        window.history.replaceState(null, '', window.location.pathname); // clear hash
+                        window.history.replaceState(null, '', window.location.pathname);
                     }
                 }
             } catch (err) {
                 console.error("Session check error:", err);
-                // Don't set global error here, might just be no session
-                // If it was a session load failure from local storage, force login state
-                setMode('login');
+                if (urlMode !== 'admin') setMode('login');
+                else setMode('admin');
             } finally {
                 setIsCheckingSession(false);
             }
@@ -54,7 +82,15 @@ export default function App() {
         const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session?.user) {
                 setUser(session.user);
-                setMode('home');
+                
+                // Use a helper or check state logic
+                const params = new URLSearchParams(window.location.search);
+                const isUrlAdmin = params.get('mode') === 'admin';
+                
+                setMode(currentMode => {
+                    if (isUrlAdmin || currentMode === 'admin') return 'admin';
+                    return 'home';
+                });
             } else if (event === 'SIGNED_OUT') {
                 // Handle logout or session expiry (e.g. cleared cookies, token revoked)
                 setUser(null);
@@ -158,97 +194,134 @@ export default function App() {
             console.error("Error signing out:", error);
         }
         setFormData({});
-        setMode('login');
+        setAuthMode('login'); // Default back to user login
+        navigate('/');
         setGlobalError("You have been signed out successfully.");
         setIsCheckingSession(false);
     };
 
-    if (mode === 'home') {
-        return <Home setMode={setMode} handleLogout={handleLogout} user={user} />;
-    }
-
-    if (mode === 'events') {
-        return <Events setMode={setMode} handleLogout={handleLogout} user={user} />;
-    }
-
-    if (mode === 'dashboard') {
-        return <Step4Dashboard setMode={setMode} handleLogout={handleLogout} user={user} />;
-    }
+    // Update isAdmin when user changes (using database whitelist)
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            if (!user) {
+                setIsAdmin(false);
+                return;
+            }
+            try {
+                const { data, error } = await supabase
+                    .from('admins')
+                    .select('email')
+                    .eq('email', user.email)
+                    .maybeSingle();
+                
+                if (data) {
+                    setIsAdmin(true);
+                } else {
+                    setIsAdmin(false);
+                }
+            } catch (err) {
+                console.error("Admin check error:", err);
+                setIsAdmin(false);
+            }
+        };
+        checkAdminStatus();
+    }, [user]);
 
     return (
-        <div className="center-wrapper">
-            <div className="app-container">
-                <div className="header">
-                    <h1>Navera Fest</h1>
-                    <p>Join the biggest tech fest of the year</p>
-                </div>
-
-                {globalError && (
-                    <div className="global-error fade-enter-active">
-                        <AlertCircle size={20} />
-                        <span>{globalError}</span>
-                    </div>
-                )}
-
-                {isCheckingSession ? (
-                    <div style={{ textAlign: 'center', padding: '2rem' }}>
-                        <p>Verifying session...</p>
-                    </div>
-                ) : (
-                    <div className="fade-enter-active">
-                        {mode === 'login' && (
-                            <LoginView
-                                setMode={setMode}
-                                setFormData={setFormData}
-                                setGlobalError={setGlobalError}
-                                switchToSignUp={switchToSignUp}
-                            />
+        <Routes>
+            <Route
+                path="/"
+                element={
+                    <Home
+                        setMode={setMode}
+                        handleLogout={handleLogout}
+                        user={user}
+                        isAdmin={isAdmin}
+                    />
+                }
+            />
+            <Route
+                path="/auth"
+                element={
+                    <div className="center-wrapper">
+                    <div className="app-container">
+                        <div className="header">
+                            <h1>Navera Fest</h1>
+                            <p>Join the biggest tech fest of the year</p>
+                        </div>
+                        {globalError && (
+                            <div className="global-error fade-enter-active">
+                                <AlertCircle size={20} />
+                                <span>{globalError}</span>
+                            </div>
                         )}
-
-                        {mode === 'login_otp' && (
-                            <LoginOTPView
-                                formData={formData}
-                                setMode={setMode}
-                                setGlobalError={setGlobalError}
-                                switchToLogin={switchToLogin}
-                            />
-                        )}
-
-                        {mode === 'signup' && (
-                            <>
-                                {step === 1 && (
-                                    <Step1TypeSelection
-                                        userType={userType}
-                                        setUserType={setUserType}
-                                        onNext={handleNextSignUp}
+                        {isCheckingSession ? (
+                            <div style={{ textAlign: 'center', padding: '2rem' }}>
+                                <p>Verifying session...</p>
+                            </div>
+                        ) : (
+                            <div className="fade-enter-active">
+                                {authMode === 'login' && (
+                                    <LoginView
+                                        setMode={setMode}
+                                        setFormData={setFormData}
+                                        setGlobalError={setGlobalError}
+                                        switchToSignUp={switchToSignUp}
+                                    />
+                                )}
+                                {authMode === 'login_otp' && (
+                                    <LoginOTPView
+                                        formData={formData}
+                                        setMode={setMode}
+                                        setGlobalError={setGlobalError}
                                         switchToLogin={switchToLogin}
                                     />
                                 )}
-                                {step === 2 && (
-                                    <Step2Form
-                                        userType={userType}
-                                        formData={formData}
-                                        setFormData={setFormData}
-                                        onNext={handleNextSignUp}
-                                        onBack={handleBackSignUp}
-                                        setGlobalError={setGlobalError}
-                                    />
+                                {authMode === 'signup' && (
+                                    <>
+                                        {step === 1 && (
+                                            <Step1TypeSelection
+                                                userType={userType}
+                                                setUserType={setUserType}
+                                                onNext={handleNextSignUp}
+                                                switchToLogin={switchToLogin}
+                                            />
+                                        )}
+                                        {step === 2 && (
+                                            <Step2Form
+                                                userType={userType}
+                                                formData={formData}
+                                                setFormData={setFormData}
+                                                onNext={handleNextSignUp}
+                                                onBack={handleBackSignUp}
+                                                setGlobalError={setGlobalError}
+                                            />
+                                        )}
+                                        {step === 3 && (
+                                            <Step3OTP
+                                                userType={userType}
+                                                formData={formData}
+                                                onNext={(targetMode) => setMode(targetMode || 'login')}
+                                                onBack={handleBackSignUp}
+                                                setGlobalError={setGlobalError}
+                                            />
+                                        )}
+                                    </>
                                 )}
-                                {step === 3 && (
-                                    <Step3OTP
-                                        userType={userType}
-                                        formData={formData}
-                                        onNext={(targetMode) => setMode(targetMode || 'login')}
-                                        onBack={handleBackSignUp}
-                                        setGlobalError={setGlobalError}
-                                    />
-                                )}
-                            </>
+                            </div>
                         )}
                     </div>
-                )}
-            </div>
-        </div>
+                </div>
+                }
+            />
+            <Route path="/events" element={<Events setMode={setMode} handleLogout={handleLogout} user={user} isAdmin={isAdmin} />} />
+            <Route path="/sponsors" element={<Sponsors setMode={setMode} handleLogout={handleLogout} user={user} isAdmin={isAdmin} />} />
+            <Route path="/results" element={<Results setMode={setMode} handleLogout={handleLogout} user={user} isAdmin={isAdmin} />} />
+            <Route path="/dashboard" element={<Step4Dashboard user={user} setMode={setMode} handleLogout={handleLogout} />} />
+            <Route path="/admin" element={<Admin setMode={setMode} handleLogout={handleLogout} user={user} isAdmin={isAdmin} />} />
+            <Route path="/admin-login" element={<AdminLoginView setMode={setMode} setGlobalError={setGlobalError} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
     );
 }
 
@@ -1099,6 +1172,84 @@ function Step4Dashboard({ user, setMode, handleLogout }) {
                     </div>
                 )}
             </main>
+        </div>
+    );
+}
+
+function AdminLoginView({ setMode, setGlobalError }) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setGlobalError('');
+        setLoading(true);
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                setGlobalError(error.message);
+            } else {
+                // After login, navigate to admin. Admin.jsx handles the isAdmin check.
+                setMode('admin');
+            }
+        } catch (err) {
+            console.error("Admin login error:", err);
+            setGlobalError("An unexpected error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="center-wrapper">
+            <div className="app-container">
+                <div className="header">
+                    <h1>Admin Login</h1>
+                    <p>Secure access for Navera Management</p>
+                </div>
+
+                <form onSubmit={handleLogin} className="fade-enter-active">
+                    <div className="form-group">
+                        <label>Email Address</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="admin@navera.in"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" className="btn" disabled={loading}>
+                        {loading ? 'Authenticating...' : 'Sign In'} <LogIn size={18} />
+                    </button>
+
+                    <button 
+                        type="button" 
+                        className="btn btn-secondary" 
+                        onClick={() => setMode('home')}
+                        style={{ border: 'none' }}
+                    >
+                        Back to Home
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }
